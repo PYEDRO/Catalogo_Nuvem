@@ -1,0 +1,305 @@
+GUIA DO DESENVOLVEDOR — CATÁLOGO INTELIGENTE
+
+Curso: ADS / IA (EAD – Unifor) Disciplina: Desenvolvimento de Software em Nuvem Projeto: Catálogo Inteligente com Filtros Avançados Infraestrutura: GCP (Cloud Run + Firestore + Firebase)
+
+1. VISÃO GERAL DO PROJETO
+
+O objetivo desta atividade é projetar, implementar e implantar uma aplicação web escalável baseada em nuvem, utilizando arquitetura em camadas, serviços gerenciados, containers e práticas de DevOps, com foco em qualidade, segurança e observabilidade.
+
+O projeto escolhido pela equipe é o Catálogo Inteligente com Filtros Avançados, que consiste em um sistema web com autenticação, operações CRUD completas, API RESTful documentada e deploy em nuvem via GCP.
+
+2. PAPÉIS DA EQUIPE
+
+Cada integrante assume um papel técnico fixo conforme exigido pela atividade. Os papéis devem constar no relatório final.
+
+Arquiteto de Software em Nuvem: responsável pela infraestrutura GCP, configuração do Firebase, Service Account, Artifact Registry, Firestore e primeiro deploy manual no Cloud Run.
+
+Desenvolvedor Back-end: responsável pela API REST em FastAPI, modelos de dados, serviços de negócio, integração com Firestore e documentação Swagger.
+
+Desenvolvedor Front-end: responsável pela interface em React, autenticação com Firebase Auth, consumo da API e deploy no Firebase Hosting.
+
+Engenheiro DevOps: responsável pelo Dockerfile, pipeline CI/CD com GitHub Actions, proteção de branches e padrão de commits.
+
+Responsável por Qualidade e Testes: responsável pelos testes automatizados no back-end com Pytest, testes no front-end com Vitest e relatório de cobertura.
+
+Documentação e Integração: responsável pelo README, relatório técnico de até 6 páginas e roteiro do vídeo de demonstração de até 7 minutos.
+
+3. PRÉ-REQUISITOS
+
+Antes de clonar o projeto, cada integrante deve ter instalado na sua máquina:
+
+Git: https://git-scm.com
+Node.js 18 ou superior: https://nodejs.org
+Python 3.11 ou superior: https://python.org
+Docker Desktop: https://docker.com
+Google Cloud SDK: https://cloud.google.com/sdk/docs/install
+Firebase CLI: rodar npm install -g firebase-tools no terminal
+4. CLONANDO O REPOSITÓRIO
+
+Cada integrante deve clonar o repositório e criar sua branch conforme o papel que ocupa na equipe.
+
+git clone https://github.com/seu-usuario/catalogo-inteligente.git
+cd catalogo-inteligente
+git checkout develop
+git pull origin develop
+
+5. CRIANDO SUA BRANCH
+
+Cada integrante cria sua própria branch a partir da develop. Nunca criar branch a partir da main.
+
+Arquiteto de Software em Nuvem:
+
+git checkout -b feature/cloud-architecture
+
+
+Desenvolvedor Back-end:
+
+git checkout -b feature/backend-api
+
+
+Desenvolvedor Front-end:
+
+git checkout -b feature/frontend-ui
+
+
+Engenheiro DevOps:
+
+git checkout -b feature/cicd-pipeline
+
+
+Responsável por Qualidade e Testes:
+
+git checkout -b feature/tests-quality
+
+
+Documentação e Integração:
+
+git checkout -b feature/documentation
+
+6. ESTRUTURA DO PROJETO
+catalogo-inteligente/
+├── backend/
+│   ├── app/
+│   │   ├── config.py
+│   │   ├── main.py
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── middleware/
+│   ├── tests/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── contexts/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── components/
+│   ├── package.json
+│   └── .env.example
+├── .github/
+│   └── workflows/
+│       └── cicd.yml
+├── firestore.rules
+├── firestore.indexes.json
+├── firebase.json
+├── CONTRIBUTING.md
+└── README.md
+
+7. CONFIGURAÇÃO DO AMBIENTE LOCAL
+7.1 Back-end
+
+Entre na pasta do backend e copie o arquivo de variáveis de ambiente:
+
+cd backend
+cp .env.example .env
+
+
+Preencha o arquivo .env com os valores fornecidos pelo Arquiteto de Software em Nuvem:
+
+GCP_PROJECT_ID=catalogo-unifor-1629
+FIREBASE_CREDENTIALS={"type":"service_account",...}
+ENVIRONMENT=development
+ALLOWED_ORIGINS=http://localhost:5173
+
+
+O valor de FIREBASE_CREDENTIALS é o conteúdo completo do serviceAccountKey.json em uma única linha. Esse arquivo será fornecido pelo Arquiteto.
+
+Instale as dependências Python:
+
+pip install -r requirements.txt
+
+
+Rode o servidor local:
+
+uvicorn app.main:app --reload --port 8080
+
+
+Acesse a documentação automática da API em: http://localhost:8080/docs
+
+7.2 Front-end
+
+Entre na pasta do frontend e copie o arquivo de variáveis:
+
+cd frontend
+cp .env.example .env
+
+
+Preencha o .env com as credenciais do Firebase fornecidas pelo Arquiteto. Essas credenciais são encontradas no Firebase Console em Configurações do Projeto > Seus aplicativos > Config.
+
+VITE_API_URL=http://localhost:8080
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=catalogo-unifor-1629
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+
+
+Instale as dependências e rode o servidor local:
+
+npm install
+npm run dev
+
+
+Acesse em: http://localhost:5173
+
+8. RODANDO COM DOCKER
+
+Para validar o container antes de subir para o Cloud Run:
+
+cd backend
+docker build -t catalogo-backend .
+docker run -p 8080:8080 --env-file .env catalogo-backend
+
+
+Confirme que está funcionando acessando: http://localhost:8080/health
+
+Resposta esperada:
+
+{"status": "ok", "environment": "development"}
+
+9. FLUXO DE TRABALHO COM GIT
+9.1 Estrutura de Branches
+
+O projeto segue o modelo de branches por funcionalidade. Nunca realizar commit diretamente na branch main.
+
+main: produção, protegida, somente via Pull Request aprovado
+develop: integração entre as features de todos os integrantes
+feature/nome: desenvolvimento individual de cada funcionalidade
+hotfix/nome: correções urgentes em produção
+9.2 Fluxo Diário de Trabalho
+
+Antes de começar a trabalhar no dia, sempre atualize sua branch com o que está na develop para evitar conflitos:
+
+git checkout develop
+git pull origin develop
+git checkout feature/sua-branch
+git merge develop
+
+
+Após fazer suas alterações, commite e suba para o repositório:
+
+git add .
+git commit -m "feat: descreva o que foi feito"
+git push origin feature/sua-branch
+
+9.3 Commits Semânticos
+
+Todos os commits devem seguir o padrão semântico abaixo. Esse padrão é obrigatório conforme os critérios de avaliação da atividade.
+
+feat: nova funcionalidade
+fix: correção de bug
+test: adição ou correção de testes
+chore: atualização de dependências ou configurações
+ci: alterações no pipeline CI/CD
+docs: documentação
+refactor: refatoração sem nova funcionalidade
+
+Exemplos corretos:
+
+git commit -m "feat: adiciona filtro por categoria no catálogo"
+git commit -m "fix: corrige paginação quando preço mínimo é zero"
+git commit -m "test: adiciona teste de autenticação com token inválido"
+git commit -m "ci: configura deploy automático no Cloud Run"
+git commit -m "docs: atualiza README com instruções de setup"
+
+9.4 Abrindo Pull Request para a Develop
+
+Quando sua funcionalidade estiver concluída e testada localmente, abra um Pull Request da sua branch para a develop no GitHub. O PR deve descrever o que foi implementado. O merge só pode ser feito após o pipeline CI/CD passar com sucesso e sem testes falhando.
+
+10. TESTES
+10.1 Back-end
+
+Rode os testes com Pytest:
+
+cd backend
+pytest tests/ -v
+
+
+Para ver a cobertura de código:
+
+pytest tests/ -v --cov=app --cov-report=term-missing
+
+
+Todo novo endpoint criado precisa ter pelo menos um teste correspondente na pasta backend/tests/. Isso é obrigatório conforme a proposta da atividade.
+
+10.2 Front-end
+cd frontend
+npm run test
+
+11. PIPELINE CI/CD
+
+O pipeline roda automaticamente via GitHub Actions em dois momentos: quando um Pull Request é aberto para main ou develop, e quando há push direto para main.
+
+O fluxo completo é:
+
+Build do backend → Testes automatizados → Build da imagem Docker → Push para Artifact Registry → Deploy no Cloud Run → Deploy no Firebase Hosting
+
+O deploy só acontece se todos os testes passarem. Se qualquer etapa falhar, o deploy é cancelado.
+
+Para o pipeline funcionar, os seguintes Secrets precisam estar configurados no repositório GitHub em Settings > Secrets and variables > Actions. Esses valores serão fornecidos pelo Arquiteto e pelo DevOps:
+
+GCP_PROJECT_ID: ID do projeto no GCP
+GCP_SA_KEY: JSON completo da Service Account
+ALLOWED_ORIGINS: URL do frontend em produção
+VITE_API_URL: URL do Cloud Run após primeiro deploy
+VITE_FIREBASE_API_KEY: Chave do Firebase
+VITE_FIREBASE_AUTH_DOMAIN: Auth domain do Firebase
+VITE_FIREBASE_PROJECT_ID: Project ID do Firebase
+VITE_FIREBASE_STORAGE_BUCKET: Storage bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID: Sender ID
+VITE_FIREBASE_APP_ID: App ID do Firebase
+12. SEGURANÇA E BOAS PRÁTICAS
+
+Nunca commitar arquivos .env, sa-key.json ou serviceAccountKey.json no repositório. Esses arquivos devem estar listados no .gitignore. Sempre usar variáveis de ambiente para credenciais. Nunca deixar as regras do Firestore abertas em produção. Separar configurações entre ambiente de desenvolvimento e produção usando a variável ENVIRONMENT.
+
+13. REGRAS DO FIRESTORE
+
+As regras de segurança do banco estão em firestore.rules. Qualquer alteração nesse arquivo precisa ser deployada manualmente pelo Arquiteto ou DevOps:
+
+firebase deploy --only firestore
+
+14. ENTREGÁVEIS DA ATIVIDADE
+
+Conforme a proposta, a equipe deve entregar:
+
+Código-fonte em repositório público no GitHub contendo código organizado, Dockerfile, arquivos de configuração e README detalhado.
+
+Relatório Técnico de no máximo 6 páginas contendo visão geral do sistema, diagrama de arquitetura em nuvem, tecnologias e serviços utilizados, estratégia de deploy e CI/CD, papéis e contribuições da equipe e dificuldades encontradas com soluções adotadas.
+
+Vídeo de demonstração de até 7 minutos mostrando a arquitetura, o funcionamento do sistema, o deploy em nuvem e o pipeline ou testes automatizados.
+
+15. CHECKLIST ANTES DE ABRIR UM PULL REQUEST
+Código rodando localmente sem erros
+Testes passando (pytest ou vitest)
+Variáveis sensíveis apenas no .env e nunca commitadas
+Commit com mensagem semântica
+Branch criada a partir de develop e não de main
+Sem arquivos .env, sa-key.json ou serviceAccountKey.json commitados
+README atualizado se adicionou nova funcionalidade
+Descrição do Pull Request preenchida explicando o que foi feito
+16. DÚVIDAS E SUPORTE
+
