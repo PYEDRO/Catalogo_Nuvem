@@ -1,0 +1,41 @@
+# Criar repositório de imagens Docker
+gcloud artifacts repositories create catalogo \
+  --repository-format=docker \
+  --location=us-central1 \
+  --description="Imagens do Catálogo Inteligente"
+
+# Criar banco Firestore
+gcloud firestore databases create --region=us-central1
+
+# Criar a Service Account que o CI/CD vai usar
+gcloud iam service-accounts create catalogo-sa \
+  --display-name="Catalogo Inteligente SA"
+
+# Guardar o email da SA em uma variável
+SA_EMAIL="catalogo-sa@catalogo-inteligente-unifor.iam.gserviceaccount.com"
+PROJECT_ID="catalogo-inteligente-unifor"
+
+# Dar as permissões necessárias
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="roles/run.admin"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="roles/artifactregistry.writer"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="roles/secretmanager.secretAccessor"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="roles/iam.serviceAccountUser"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="roles/datastore.user"
+
+# Gerar a chave JSON da Service Account
+gcloud iam service-accounts keys create sa-key.json \
+  --iam-account=$SA_EMAIL

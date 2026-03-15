@@ -1,0 +1,3 @@
+# Guardar as credenciais do Firebase no Secret Manager
+gcloud secrets create firebase-credentials \
+  --data-file=caminho/para/firebase-serviceAccount.json

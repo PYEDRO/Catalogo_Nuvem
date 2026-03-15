@@ -1,0 +1,18 @@
+# Instalar o gcloud CLI na sua máquina
+ https://cloud.google.com/sdk/docs/install
+
+# Autenticar
+gcloud auth login
+
+# Criar o projeto
+gcloud projects create catalogo-inteligente-unifor --name="Catalogo Inteligente"
+
+# Definir como projeto padrão
+gcloud config set project catalogo-inteligente-unifor
+
+# Habilitar os serviços necessários
+gcloud services enable run.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
+gcloud services enable firestore.googleapis.com
+gcloud services enable secretmanager.googleapis.com
+gcloud services enable firebase.googleapis.com
