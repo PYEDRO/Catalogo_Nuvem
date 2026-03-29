@@ -60,10 +60,6 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Habilitar APIs necessárias
-        run: |
-          gcloud services enable run.googleapis.com containerregistry.googleapis.com
-
       - name: Configurar Docker para GCR
         run: gcloud auth configure-docker --quiet
 
