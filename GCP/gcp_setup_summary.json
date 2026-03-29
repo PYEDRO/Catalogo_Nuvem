@@ -1,0 +1,17 @@
+{
+  "project_id": "catalogo-unifor-1629",
+  "region": "us-central1",
+  "service_account": "catalogo-sa@catalogo-unifor-1629.iam.gserviceaccount.com",
+  "sa_key_file": "sa-key.json",
+  "artifact_registry": "us-central1-docker.pkg.dev/catalogo-unifor-1629/catalogo",
+  "cloud_run_service": "catalogo-backend",
+  "proximos_passos": [
+    "1. Acesse https://console.firebase.google.com e vincule o projeto catalogo-unifor-1629",
+    "2. Ative Firebase Authentication com e-mail e senha",
+    "3. Baixe o serviceAccountKey.json do Firebase Console",
+    "4. Rode: gcloud secrets create firebase-credentials --data-file=serviceAccountKey.json --project=catalogo-unifor-1629",
+    "5. Copie o conteudo de sa-key.json como secret GCP_SA_KEY no GitHub",
+    "6. Adicione GCP_PROJECT_ID=catalogo-unifor-1629 nos secrets do GitHub",
+    "7. Faca push para a branch main e o CI/CD assume"
+  ]
+}
