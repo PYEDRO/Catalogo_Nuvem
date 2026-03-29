@@ -21,17 +21,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # --- INÍCIO DO PASSO DE DEBUG ADICIONADO ---
-      - name: Debug - Listar estrutura de arquivos
-        run: |
-          echo "=== Arquivos na raiz do repositório ==="
-          ls -la
-          echo "=== Arquivos na pasta backend (se existir) ==="
-          ls -la backend/ || echo "🚨 ALERTA: A pasta 'backend' não foi encontrada ou tem outro nome!"
-      # --- FIM DO PASSO DE DEBUG ---
-
       - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
