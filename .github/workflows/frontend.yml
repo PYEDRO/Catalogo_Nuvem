@@ -27,11 +27,6 @@ jobs:
           python-version: "3.11"
           cache: 'pip'
           cache-dependency-path: 'backend/requirements.txt'
-          
-      - name: Autenticar no GCP para os testes
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Instalar dependências + pytest
         working-directory: backend
