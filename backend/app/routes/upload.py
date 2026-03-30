@@ -1,8 +1,9 @@
+import os
 import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from firebase_admin import storage
 
-from app.routes.auth import require_admin  # ✅ mesmo padrão do catalog.py
+from app.routes.auth import require_admin  
 
 router = APIRouter(prefix="/catalog", tags=["upload"])
 
@@ -13,7 +14,7 @@ MAX_SIZE_MB = 5
 @router.post("/products/upload-image", status_code=200)
 async def upload_product_image(
     file: UploadFile = File(...),
-    _admin: dict = Depends(require_admin),  # ✅ unificado com o restante da API
+    _admin: dict = Depends(require_admin),  
 ):
     # Valida content type
     if file.content_type not in ALLOWED_TYPES:
@@ -22,7 +23,6 @@ async def upload_product_image(
             detail=f"Tipo inválido. Permitidos: jpeg, png, webp",
         )
 
-    # Lê e valida tamanho
     contents = await file.read()
     size_mb = len(contents) / (1024 * 1024)
     if size_mb > MAX_SIZE_MB:
@@ -31,13 +31,16 @@ async def upload_product_image(
             detail=f"Arquivo excede {MAX_SIZE_MB}MB (recebido: {size_mb:.1f}MB)",
         )
 
-    # Gera path único no Storage
     ext = (file.filename or "image").rsplit(".", 1)[-1]
     filename = f"products/{uuid.uuid4()}.{ext}"
 
-    # Upload para Firebase Storage
     try:
-        bucket = storage.bucket()
+        project_id = os.getenv("GCP_PROJECT_ID", "catalogo-unifor-1629")
+        
+        bucket_name = f"{project_id}.appspot.com"
+
+        bucket = storage.bucket(bucket_name)
+        
         blob = bucket.blob(filename)
         blob.upload_from_string(contents, content_type=file.content_type)
         blob.make_public()
