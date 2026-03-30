@@ -37,7 +37,7 @@ async def upload_product_image(
     try:        
         project_id = os.getenv("GCP_PROJECT_ID", "catalogo-unifor-1629")
         
-        bucket_name = "gs://catalogo-unifor-1629.firebasestorage.app/products"
+        bucket_name = "catalogo-unifor-1629.firebasestorage.app"
 
         bucket = storage.bucket(bucket_name)
         
