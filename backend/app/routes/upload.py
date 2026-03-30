@@ -34,10 +34,10 @@ async def upload_product_image(
     ext = (file.filename or "image").rsplit(".", 1)[-1]
     filename = f"products/{uuid.uuid4()}.{ext}"
 
-    try:
+    try:        
         project_id = os.getenv("GCP_PROJECT_ID", "catalogo-unifor-1629")
         
-        bucket_name = f"{project_id}.appspot.com"
+        bucket_name = "gs://catalogo-unifor-1629.firebasestorage.app/products"
 
         bucket = storage.bucket(bucket_name)
         
