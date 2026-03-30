@@ -10,6 +10,13 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
+if not firebase_admin._apps:
+    cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS"))
+    firebase_admin.initialize_app(cred, {
+        "projectId": os.getenv("GCP_PROJECT_ID"),
+        "storageBucket": f"{os.getenv('GCP_PROJECT_ID')}.firebasestorage.app",
+    })
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
