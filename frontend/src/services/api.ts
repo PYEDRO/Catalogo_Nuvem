@@ -2,7 +2,7 @@ import axios from "axios";
 import { auth } from "../config/firebase";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
   timeout: 10000,
 });
 
@@ -79,6 +79,21 @@ export const catalogApi = {
 
   deleteProduct: async (id: string): Promise<void> => {
     await api.delete(`/catalog/products/${id}`);
+  },
+
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await api.post("/catalog/products/upload-image", formData, {
+      headers: {
+      
+        "Content-Type": undefined,
+      },
+      timeout: 30000, 
+    });
+
+    return response.data.image_url as string;
   },
 };
 
