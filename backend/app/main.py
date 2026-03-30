@@ -29,6 +29,7 @@ app.add_middleware(LoggingMiddleware)
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(catalog.router, prefix="/catalog", tags=["catalog"])
+app.include_router(upload.router)
 
 
 @app.get("/health", tags=["health"])
