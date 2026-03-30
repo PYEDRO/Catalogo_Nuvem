@@ -88,7 +88,6 @@ export const catalogApi = {
     const response = await api.post("/catalog/products/upload-image", formData, {
       headers: {
       
-        "Content-Type": undefined,
       },
       timeout: 30000, 
     });
