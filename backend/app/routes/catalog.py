@@ -25,7 +25,7 @@ async def list_products(
     in_stock: Optional[bool] = Query(None),
     search: Optional[str] = Query(None),
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=12, ge=1, le=50),
+    page_size: int = Query(default=12, ge=1, le=200),  # ✅ aumentado de 50 para 200
 ):
     result = await product_service.query_with_filters(
         category=category.value if category else None,
