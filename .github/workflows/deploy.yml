@@ -25,7 +25,7 @@ env:
   GCP_PROJECT_ID: catalogo-unifor-1629
   GCP_REGION: us-central1
   CLOUD_RUN_SERVICE: catalogo-backend
-  IMAGE: gcr.io/catalogo-unifor-1629/catalogo-backend
+  IMAGE: us-central1-docker.pkg.dev/catalogo-unifor-1629/catalogo/backend
 
 # ─────────────────────────────────────────────────────────────────────────────
 # QUALITY GATE — lint e type-check rodam em paralelo com os testes
@@ -142,8 +142,8 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Configurar Docker para GCR
-        run: gcloud auth configure-docker --quiet
+      - name: Configurar Docker para Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       - name: Build imagem Docker
         working-directory: backend
@@ -153,7 +153,7 @@ jobs:
             -t ${{ env.IMAGE }}:latest \
             .
 
-      - name: Push para GCR
+      - name: Push para Artifact Registry
         run: |
           docker push ${{ env.IMAGE }}:${{ github.sha }}
           docker push ${{ env.IMAGE }}:latest

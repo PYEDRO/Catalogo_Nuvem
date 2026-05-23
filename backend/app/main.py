@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routes import catalog, auth
+from app.routes import catalog, auth, upload 
 from app.middleware.logging_middleware import LoggingMiddleware
 import logging
 
@@ -29,6 +29,7 @@ app.add_middleware(LoggingMiddleware)
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(catalog.router, prefix="/catalog", tags=["catalog"])
+app.include_router(upload.router)
 
 
 @app.get("/health", tags=["health"])
