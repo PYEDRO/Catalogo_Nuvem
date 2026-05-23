@@ -41,7 +41,7 @@ async def list_products(
     in_stock: Optional[bool] = Query(None, description="Filtrar apenas produtos em estoque"),
     search: Optional[str] = Query(None, min_length=2, max_length=100, description="Busca por nome ou descrição"),
     page: int = Query(default=1, ge=1, description="Número da página"),
-    page_size: int = Query(default=12, ge=1, le=50, description="Itens por página"),
+    page_size: int = Query(default=12, ge=1, le=200, description="Itens por página"),
 ) -> PaginatedResponse:
     """Lista produtos com filtros opcionais e paginação.
 

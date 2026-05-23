@@ -67,3 +67,21 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# GCP / Firebase service account credentials — NUNCA versionar chaves privadas
+GCP/*.json
+*-firebase-adminsdk-*.json
+*sa-key*.json
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Build outputs
+frontend/dist/
+backend/.venv/

@@ -21,7 +21,7 @@ export function Admin() {
     setLoading(true);
     setError(null);
     try {
-      const data = await catalogApi.getProducts({ page_size: 100 });
+      const data = await catalogApi.getProducts({ page: 1, page_size: 100 });
       setProducts(data.items);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar produtos");
