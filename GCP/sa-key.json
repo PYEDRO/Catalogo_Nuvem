@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "catalogo-unifor-1629",
+  "private_key_id": "730fe875453ec1a26f71864104814d27a49caab1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8O4Az2b0F95Sv\nZElbr2n3UGhtIfvDFiVlB2oEUXmvZQRsAYRMm8CkvcUvccI3INI+gSgWtDXMQQ6f\nlJAel1efCAeZU5+xYazZnsfVCUlkEg1xe+eSa/dvDZDihzte6DmzNlmz1Yh8ceZV\nl2HX60t85RH5AVUhHQzfQ8lGsEpQBoK9zVB68kOBnPMf/fK97NMGAzN5QWe3K6Kn\nqLI5hXokq3VlXYdJOov1nh2uFi3V8bTC5z+byuptD0AJK4D0WDlb+O6R0S60Cb51\nb5/wowgbG9eGhzoBEXxJTAgx2PTKLoB8sKgt9xISkp/tuRhlE2i+7brSatBmzc+2\nU3ebfipLAgMBAAECggEADkvQmV+MsTLUGpwZzDpe6Hc1bzB5ECCS94DgJvLPNKiN\n9OwKkcz0jS6Slt9jek9mWHPzyQGn4lsAktM0PPaOo5f3B8inpM+/0olyMPZzGgQa\n/EcGWAMWOFuF6QaPVk5572gN2RA7PQRjk5WbS0xmH9bADjLxNcIgk6Zw14sVIc2z\nZ8fzmneW8D4Lz+d1XOwBv8lUtfuEl/oOuJ7FH7WqSn7xxcu+PH/ZiqcOCgeNO0OP\n80tZNAwIcmV8obdclL6yF7D2dAKNVTXT+XAFUWHPr5xVu5byw5+7aM9PiT64m5c6\ntj69/xxj+8Op4XkQ5rPJwdWtEvw769UvM5bWgJdrfQKBgQDmAGG8nE03hFgUH0ty\nDqC/rafOcqdfU9VQnMtXetwgw6EsGwnamcFnrkEkaGAOb5pmK7GKct+bT8i116cX\ncTNK1bXaNsAnKfaza2zhCDSduU4oVL0BkI0E2Cxr93WmmAE4bzIBlOx3WhUd+oOP\nmwjBK0tUyGuMQ6TCdM0LmugKHQKBgQDRgm+LNSsOak3yKdquv214s5EJqtyohSVF\nOhRFTIUxW2wLLK0CYirV0eoeETH7WxaRyxAjGZSYj+TYJy4LIU6z0j/HzSq6QAfS\nUoDrbUWnEz2onXphc88rRQ+mEweVxcSNLYn0CRCd8+/8jjnpmFlfXFLC/jqsnev5\npYF60XQZhwKBgGQTnnNW/zI836ZBx64lN0Sv5ugpczJDY/njf4bc6pNHDAYI7cy0\nQjc+1xFkaQdfACucr2+ydCE8IfUdlJLaqprRSoNcd1eTJskC4Sk5TMukKaHa3TKl\nFvcYqJuB3StT0JQhrfyKNCnqhG265yvBJZoHoIuPeVxawoHqGJ4IFRbxAoGAV9Kl\nj2UqN1C4e9qvoLD94qrjEXpeJQYrKWm/NY1uB9Ka59RCcc1Ux2zHBvOOUB9Oxq6o\nhQ4kDA/FjhZeZqv/ocFwmwCV+Jz+qluLTyTvHaojHptkwZUaMrkwZh10AIR2b/e2\n7GUgYhXvc57rB9ClJiQ9TR/k2JcaY/vM2v8R++ECgYEAiDbkyboLkpL/zaUpqKdp\nWDjW3t4Ls6zN09pl+6OExjawXpa00gQFAlNKrFJzWSM3v9ozQke5RNUUc0PYvcmL\nFDW+g5+J/INgfsZcrU7VFH8exNS598x0W7/Y1XmyzdKttz6AdphRE8N9seEaohUD\nEivnJej4FSG08Afat6w28fk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "catalogo-sa@catalogo-unifor-1629.iam.gserviceaccount.com",
+  "client_id": "100128227199600412706",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/catalogo-sa%40catalogo-unifor-1629.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

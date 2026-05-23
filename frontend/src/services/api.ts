@@ -81,15 +81,17 @@ export const catalogApi = {
     await api.delete(`/catalog/products/${id}`);
   },
 
+  // ✅ Upload de imagem para Firebase Storage via backend
   uploadImage: async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
 
     const response = await api.post("/catalog/products/upload-image", formData, {
       headers: {
-      
+        // NÃO definir Content-Type — axios/browser define multipart/form-data automaticamente
+        "Content-Type": undefined,
       },
-      timeout: 30000, 
+      timeout: 30000, // upload pode demorar mais
     });
 
     return response.data.image_url as string;
