@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routes import catalog, auth, upload 
+from app.routes import catalog, auth, upload
 from app.middleware.logging_middleware import LoggingMiddleware
 import logging
 
