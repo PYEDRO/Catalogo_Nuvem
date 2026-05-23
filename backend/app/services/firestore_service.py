@@ -1,26 +1,22 @@
-# REFATORAÇÃO [REF-2]: query_with_filters — paginação e busca corrigidas
+# REFATORACAO [REF-2]: query_with_filters -- paginacao e busca corrigidas
 #
 # PROBLEMA ORIGINAL:
-#   - query.stream() carregava TODOS os documentos para memória (O(n) por request).
-#     Com 10.000 produtos, cada chamada descarregava o Firestore inteiro no servidor.
-#   - A paginação era feita por slice de lista Python — correto em volume reduzido,
-#     mas inviável em produção (latência ~3-5s, memória ~200MB para 50k docs).
-#   - O filtro `search` era aplicado no catalog.py APÓS a paginação, fazendo com que
-#     a busca operasse apenas sobre a página atual (bug crítico de lógica).
+#   - query.stream() carregava TODOS os documentos para memoria (O(n) por request).
+#   - A paginacao era feita por slice de lista Python.
+#   - O filtro `search` era aplicado no catalog.py APOS a paginacao (bug critico).
 #
-# SOLUÇÃO IMPLEMENTADA:
-#   - Cursor-based pagination via Firestore .offset() + .limit() — delega a paginação
-#     ao banco, reduzindo tráfego de rede e consumo de memória em ~90%.
-#   - COUNT aggregation query para total — evita carregar documentos apenas para contar.
-#   - Busca por `search` movida para o serviço, aplicada ANTES de paginar.
-#   - Operações Firestore síncronas isoladas via asyncio.to_thread() — libera o event
-#     loop do FastAPI durante I/O blocking (SOLID: SRP + DIP).
+# SOLUCAO IMPLEMENTADA:
+#   - Cursor-based pagination via Firestore .offset() + .limit().
+#   - COUNT aggregation query para total.
+#   - Busca por `search` aplicada ANTES de paginar.
+#   - asyncio.to_thread() para operacoes blocking (SOLID: SRP + DIP).
 
 import json
 import logging
+import math
 from asyncio import to_thread
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -31,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def _init_firebase() -> None:
-    """Inicializa o Firebase Admin SDK uma única vez (idempotente)."""
+    """Inicializa o Firebase Admin SDK uma unica vez (idempotente)."""
     if not firebase_admin._apps:
         if settings.FIREBASE_CREDENTIALS:
             cred_dict = json.loads(settings.FIREBASE_CREDENTIALS)
@@ -58,7 +54,7 @@ class FirestoreService:
         self._col = db.collection(collection)
 
     # ------------------------------------------------------------------
-    # CRUD básico
+    # CRUD basico
     # ------------------------------------------------------------------
 
     async def create(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -99,45 +95,8 @@ class FirestoreService:
             raise
 
     # ------------------------------------------------------------------
-    # Query com filtros + paginação corrigida [REF-2]
+    # Query com filtros + paginacao cursor-based + COUNT aggregation
     # ------------------------------------------------------------------
-
-    def _build_query(
-        self,
-        category: Optional[str],
-        min_price: Optional[float],
-        max_price: Optional[float],
-        in_stock: Optional[bool],
-    ):
-        """Constrói a query Firestore com os filtros compostos disponíveis."""
-        q = self._col
-        if category:
-            q = q.where("category", "==", category)
-        if in_stock is not None:
-            q = q.where("in_stock", "==", in_stock)
-        # Nota: filtros de range (>=, <=) exigem índice composto no Firestore
-        # quando combinados com outros filtros de igualdade.
-        if min_price is not None:
-            q = q.where("price", ">=", min_price)
-        if max_price is not None:
-            q = q.where("price", "<=", max_price)
-        return q
-
-    @staticmethod
-    def _apply_search(items: List[Dict[str, Any]], search: str) -> List[Dict[str, Any]]:
-        """Full-text search simples aplicado no servidor, antes de paginar.
-
-        ANTES (bug): filtro aplicado em catalog.py após paginação — buscava
-                     apenas nos produtos da página atual, ignorando os demais.
-        DEPOIS: filtro aplicado sobre o conjunto completo de resultados filtrados,
-                garantindo consistência entre total e itens retornados.
-        """
-        term = search.strip().lower()
-        return [
-            item for item in items
-            if term in item.get("name", "").lower()
-            or term in item.get("description", "").lower()
-        ]
 
     async def query_with_filters(
         self,
@@ -149,57 +108,69 @@ class FirestoreService:
         page: int = 1,
         page_size: int = 12,
     ) -> Dict[str, Any]:
-        """Retorna produtos paginados com filtros aplicados corretamente.
-
-        Estratégia:
-        1. Firestore filtra por categoria/estoque/preço (índices nativos).
-        2. Busca textual aplicada antes da paginação.
-        3. Paginação via offset/limit delegada ao banco — sem carregar todos os docs.
+        """
+        Retorna pagina de documentos com total via COUNT aggregation.
+        Filtros Firestore: category, min_price, max_price, in_stock.
+        Busca textual (search) em memoria, aplicada antes da paginacao.
         """
         try:
-            base_query = self._build_query(category, min_price, max_price, in_stock)
+            query = self._col
 
-            # Busca textual: requer carregar os docs filtrados (Firestore não suporta full-text nativo).
-            # Para volume > 10k documentos, considerar Algolia/Typesense como search layer.
+            if category is not None:
+                query = query.where("category", "==", category)
+            if in_stock is not None:
+                query = query.where("in_stock", "==", in_stock)
+            if min_price is not None:
+                query = query.where("price", ">=", min_price)
+            if max_price is not None:
+                query = query.where("price", "<=", max_price)
+
             if search:
-                all_docs = await to_thread(lambda: list(base_query.stream()))
-                all_items = [_doc_to_dict(d) for d in all_docs]
-                filtered = self._apply_search(all_items, search)
+                # Busca em memoria: carrega documentos filtrados e filtra por nome/descricao
+                def _stream_search():
+                    docs = list(query.stream())
+                    term = search.lower()
+                    matched = [
+                        _doc_to_dict(d) for d in docs
+                        if term in (d.to_dict().get("name") or "").lower()
+                        or term in (d.to_dict().get("description") or "").lower()
+                    ]
+                    total = len(matched)
+                    offset = (page - 1) * page_size
+                    items = matched[offset: offset + page_size]
+                    return items, total
+
+                items, total = await to_thread(_stream_search)
             else:
-                # Sem busca textual: conta via aggregation e pagina no banco (eficiente)
-                count_result = await to_thread(lambda: base_query.count().get())
-                total_count = count_result[0][0].value
+                # COUNT aggregation -- evita carregar documentos so para contar
+                def _count():
+                    count_result = query.count().get()
+                    return count_result[0][0].value
 
-                offset = (page - 1) * page_size
-                paged_docs = await to_thread(
-                    lambda: list(base_query.offset(offset).limit(page_size).stream())
-                )
-                items = [_doc_to_dict(d) for d in paged_docs]
+                total = await to_thread(_count)
 
-                return {
-                    "items": items,
-                    "total": total_count,
-                    "page": page,
-                    "page_size": page_size,
-                    "total_pages": max(1, (total_count + page_size - 1) // page_size),
-                }
+                # Cursor-based pagination
+                def _paginate():
+                    offset = (page - 1) * page_size
+                    return list(query.offset(offset).limit(page_size).stream())
 
-            # Caminho de busca textual: paginar em memória (após filtro textual)
-            total = len(filtered)
-            start = (page - 1) * page_size
-            items = filtered[start : start + page_size]
+                raw_docs = await to_thread(_paginate)
+                items = [_doc_to_dict(d) for d in raw_docs]
+
+            total_pages = math.ceil(total / page_size) if page_size > 0 else 0
 
             return {
                 "items": items,
                 "total": total,
                 "page": page,
                 "page_size": page_size,
-                "total_pages": max(1, (total + page_size - 1) // page_size),
+                "total_pages": total_pages,
             }
 
         except Exception as exc:
-            logger.error("Erro na query com filtros: %s", exc)
+            logger.error("Erro ao consultar colecao: %s", exc)
             raise
 
 
+# Singleton para uso nas rotas
 product_service = FirestoreService("products")
